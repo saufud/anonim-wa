@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+providers = ["go"]
+
+[build.nixpacks.phases.build]
+cmds = ["go build -o app ./cmd/server"]
+
+[deploy]
+startCommand = "./app"
