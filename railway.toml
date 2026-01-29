@@ -5,7 +5,9 @@ builder = "nixpacks"
 providers = ["go"]
 
 [build.nixpacks.phases.build]
-cmds = ["go build -o /app/app ./cmd/server"]
+# Gunakan "app" saja (tanpa / di depan), ini akan membuat binary di folder kerja saat ini
+cmds = ["go build -o app ./cmd/server"]
 
 [deploy]
-startCommand = "/app/app"
+# Gunakan ./app untuk menjalankan file di folder kerja
+startCommand = "./app"
