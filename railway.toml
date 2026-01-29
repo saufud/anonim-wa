@@ -4,14 +4,12 @@ builder = "nixpacks"
 [build.nixpacks]
 providers = ["go"]
 
-[build.nixpacks.phases.setup]
-# Memastikan environment Go terinstall dengan benar
-cmds = ["go version"]
+[build.nixpacks.phases.install]
+cmds = ["go mod download"]
 
 [build.nixpacks.phases.build]
-# Kuncinya ada di sini: arahkan ke ./cmd/server
-cmds = ["go build -o app ./cmd/server"]
+# ✅ Build ke root directory, bukan ke /app/app
+cmds = ["cd /app && go build -o /app/app ./cmd/server"]
 
 [deploy]
-# Jalankan binary yang baru dibuat
-startCommand = "./app"
+startCommand = "/app/app"
