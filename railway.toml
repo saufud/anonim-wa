@@ -1,5 +1,8 @@
 [build]
-builder = "NIXPACKS"
+builder = "nixpacks"
+
+[build.nixpacks]
+providers = ["go"]
 
 [deploy]
-startCommand = "go run cmd/server/main.go"
+startCommand = "go run ./cmd/server"
