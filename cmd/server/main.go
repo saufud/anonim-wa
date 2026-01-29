@@ -15,11 +15,13 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	// Load .env for local only (safe on Railway)
+	_ = godotenv.Load()
+
 	cfg := config.Load()
 
+	// Init sender
 	var msgSender sender.MessageSender
-
 	switch cfg.Provider {
 	case "meta":
 		msgSender = sender.NewMeta(cfg.MetaToken, cfg.MetaPhoneID)
@@ -34,22 +36,27 @@ func main() {
 	// API endpoint
 	mux.HandleFunc("/send", handler.SendHandler(msgService))
 
-	// ✅ Detect frontend path smartly
+	// Serve frontend
 	frontendPath := getFrontendPath()
 	log.Println("Serving frontend from:", frontendPath)
 	mux.Handle("/", http.FileServer(http.Dir(frontendPath)))
 
-	log.Println("Server running on http://localhost:" + cfg.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
+	// ✅ PORT handling (Railway + local)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = cfg.Port // fallback for local
+	}
+
+	log.Println("Server running on :" + port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
 
-// Helper function untuk cari frontend folder
+// Helper function to find frontend folder
 func getFrontendPath() string {
-	// Try relative path dari binary location
 	paths := []string{
-		"./frontend",           // Kalau run dari root project
-		"../../frontend",       // Kalau run dari cmd/server
-		"../../../frontend",    // Kalau build & run dari cmd/server
+		"./frontend",
+		"../../frontend",
+		"../../../frontend",
 	}
 
 	for _, p := range paths {
@@ -59,20 +66,16 @@ func getFrontendPath() string {
 		}
 	}
 
-	// Fallback: cari dari working directory
 	wd, _ := os.Getwd()
-	
-	// Cek apakah ada frontend/ di working dir
+
 	if _, err := os.Stat(filepath.Join(wd, "frontend")); err == nil {
 		return filepath.Join(wd, "frontend")
 	}
 
-	// Cek apakah working dir sudah di dalam frontend
 	if filepath.Base(wd) == "frontend" {
 		return wd
 	}
 
-	// Default fallback
 	log.Println("Warning: frontend folder not found, using ../../frontend")
 	return "../../frontend"
 }
