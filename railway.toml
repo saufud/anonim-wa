@@ -1,15 +1,2 @@
-[build]
-builder = "nixpacks"
-
-[build.nixpacks]
-providers = ["go"]
-
-[build.nixpacks.phases.install]
-cmds = ["go mod download"]
-
-[build.nixpacks.phases.build]
-# ✅ Build ke root directory, bukan ke /app/app
-cmds = ["cd /app && go build -o /app/app ./cmd/server"]
-
-[deploy]
-startCommand = "/app/app"
+[start]
+cmd = "go run ./cmd/server"
